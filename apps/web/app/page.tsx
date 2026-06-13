@@ -5,11 +5,11 @@ export const metadata: Metadata = {
   title: 'ClinicOS AI — AI-Powered Clinic Management',
   description:
     'ClinicOS AI is a smart clinic management platform with a 24/7 AI receptionist that books appointments, sends WhatsApp reminders, and manages your clinic — automatically.',
-  metadataBase: new URL('https://clinicos.workee.online'),
+  metadataBase: new URL('https://clinicos.aderalabs.com'),
   openGraph: {
     title: 'ClinicOS AI — Smart Clinic Management',
     description: 'AI receptionist, appointment booking, WhatsApp automation & analytics for modern clinics.',
-    url: 'https://clinicos.workee.online',
+    url: 'https://clinicos.aderalabs.com',
     siteName: 'ClinicOS AI',
     type: 'website',
   },
@@ -92,7 +92,7 @@ export default function LandingPage() {
           </Link>
         </div>
         <p className="text-xs text-[#94a3b8] mt-4">
-          Questions? <a href="mailto:support@clinicos.workee.online" className="text-[#00c896] font-bold hover:underline">support@clinicos.workee.online</a>
+          Questions? <a href="mailto:support@clinicos.aderalabs.com" className="text-[#00c896] font-bold hover:underline">support@clinicos.aderalabs.com</a>
         </p>
       </section>
 
@@ -188,8 +188,8 @@ export default function LandingPage() {
           </div>
           <p className="text-sm text-[#94a3b8]">
             © {new Date().getFullYear()} ClinicOS AI · 
-            <a href="mailto:support@clinicos.workee.online" className="hover:text-[#00c896] ml-1">
-              support@clinicos.workee.online
+            <a href="mailto:support@clinicos.aderalabs.com" className="hover:text-[#00c896] ml-1">
+              support@clinicos.aderalabs.com
             </a>
           </p>
           <div className="flex gap-4 text-sm text-[#94a3b8]">

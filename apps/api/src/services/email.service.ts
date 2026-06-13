@@ -21,7 +21,7 @@ interface SendEmailOptions {
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM ?? `ClinicOS AI <support@clinicos.workee.online>`,
+      from: process.env.SMTP_FROM ?? `ClinicOS AI <support@clinicos.aderalabs.com>`,
       to: options.to,
       subject: options.subject,
       html: options.html,

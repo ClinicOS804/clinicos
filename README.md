@@ -1,316 +1,283 @@
-# ClinicOS AI — Upload & Go Live Guide
+# ClinicOS AI — Deployment Guide
 
-**Your website:** https://clinicos.workee.online  
-**Admin panel:** https://clinicos.workee.online/superadmin/login  
-**Support email:** support@clinicos.workee.online
-
----
-
-## ✅ ALREADY DONE (do not repeat)
-
-- [x] Node.js installed on your computer
-- [x] All packages installed (`npm install`)
-- [x] API backend built → `apps/api/dist/` folder exists
-- [x] Frontend built → `apps/web/.next/` folder exists
-- [x] `.env` file filled in (OpenAI, Cloudinary, database, email, JWT)
-- [x] `SUPERADMIN_PASSWORD_HASH` is the only thing still needed — done in Step 5 below
+**Your website:** https://clinicos.aderalabs.com  
+**Admin panel:** https://clinicos.aderalabs.com/superadmin/login  
+**Support email:** support@clinicos.aderalabs.com
 
 ---
 
-## STEP 1 — CREATE DATABASE IN CPANEL
+## .ENV FILE — CURRENT STATUS
 
-1. Open your browser → go to your cPanel login URL  
-   (Your hosting company sent this — looks like `https://clinicos.workee.online:2083`)
+Open `C:\Users\DELL\Documents\ClinicOS\apps\api\.env` and check:
 
-2. Enter your cPanel username and password
+| Line | Status | Notes |
+|------|--------|-------|
+| `NODE_ENV=production` | ✅ Done | |
+| `FRONTEND_URL` / `APP_URL` | ✅ Done | Set to clinicos.aderalabs.com |
+| `DATABASE_URL` | 🔧 **Change password** | Must match what you set in cPanel MySQL |
+| `JWT_SECRET` | ✅ Done | |
+| `SUPERADMIN_EMAIL` | ✅ Done | support@clinicos.aderalabs.com |
+| `SUPERADMIN_PASSWORD_HASH` | 🔧 **Set in cPanel terminal** | See Step 5C below |
+| `SMTP_HOST` | ✅ Done | mail.aderalabs.com |
+| `SMTP_USER` | ✅ Done | support@clinicos.aderalabs.com |
+| `SMTP_PASS` | 🔧 **Fill in** | Your cPanel email password |
+| `OPENAI_API_KEY` | ✅ Done | |
+| `CLOUDINARY_*` | ✅ Done | |
+| Stripe / Twilio / ElevenLabs | ✅ Skipped on purpose | Add after launch |
 
-3. Find the **"Databases"** section → click **"MySQL Databases"**
+---
 
-4. Under **"Create New Database"**:
-   - Type: `clinicos_db`
-   - Click **"Create Database"** button
-   - You see a green success message ✓
+## STEP 1 — BUILD ON YOUR COMPUTER
 
-5. Scroll down to **"MySQL Users"** → **"Add New User"**:
+Open **PowerShell** (press Windows key → type `powershell` → Enter).
+
+Type each line and press Enter. Wait for each to finish:
+
+```
+cd C:\Users\DELL\Documents\ClinicOS
+```
+
+```
+npm install
+```
+*(Wait 3-5 minutes)*
+
+```
+cd apps\api
+npm run build
+npx prisma generate
+cd ..\web
+npm run build
+cd ..\..
+```
+
+After this you will have:
+- `apps/api/dist/` — compiled backend
+- `apps/web/.next/` — compiled frontend
+
+---
+
+## STEP 2 — CREATE DATABASE IN CPANEL
+
+1. Log into cPanel at your **Adera Labs** hosting
+   - URL is usually: `https://clinicos.aderalabs.com:2083` or check your hosting welcome email
+
+2. Find **"MySQL Databases"** → click it
+
+3. Create database:
+   - Type: `clinicos_db` → click **Create Database** ✓
+
+4. Create user:
    - Username: `clinicos_user`
-   - Password: `4mQ6S77xZ3TiGs` ← use this exact password (it's already in your .env)
-   - Click **"Create User"**
+   - Password: `4mQ6S77xZ3TiGs` ← use this exactly (already in your .env)
+   - Click **Create User**
 
-6. Scroll down to **"Add User To Database"**:
-   - User: `clinicos_user`
-   - Database: `clinicos_db`
-   - Click **"Add"**
-   - On the next screen: check **"ALL PRIVILEGES"** → click **"Make Changes"**
+5. Add user to database:
+   - User: `clinicos_user` | Database: `clinicos_db`
+   - Click **Add** → check **ALL PRIVILEGES** → click **Make Changes**
 
-✅ Database is ready.
+✅ Database ready.
 
 ---
 
-## STEP 2 — CREATE EMAIL ACCOUNT IN CPANEL
+## STEP 3 — CREATE EMAIL ACCOUNT IN CPANEL
 
-1. In cPanel → find **"Email"** section → click **"Email Accounts"**
+1. cPanel → **Email Accounts** → click **Create**
+2. Username: `support` | Domain: `clinicos.aderalabs.com`
+3. Set a password — write it down
+4. Click **Create**
 
-2. Click **"Create"** button
+5. Open `apps/api/.env` in Notepad → find `SMTP_PASS=REPLACE_WITH_EMAIL_PASSWORD`
+   → replace with the password you just set
 
-3. Fill in:
-   - Username: `support`
-   - Domain: `clinicos.workee.online`
-   - Password: `@Nsa_Khan&931` ← use this exact password (it's already in your .env)
-
-4. Click **"Create"** button
-
-✅ Email is ready.
+✅ Email ready.
 
 ---
 
-## STEP 3 — UPLOAD BACKEND TO CPANEL FILE MANAGER
+## STEP 4 — UPLOAD BACKEND
 
-1. In cPanel → find **"Files"** section → click **"File Manager"**
+**Zip these files** from `C:\Users\DELL\Documents\ClinicOS\apps\api\`:
+- `dist/` folder
+- `prisma/` folder
+- `package.json`
+- `.env`
+- `ecosystem.config.js`
 
-2. In the left panel, click on your **home folder** — this is the one that CONTAINS `public_html`, not inside it. It usually shows your domain name or username at the top.
+Right-click → Send to → Compressed (zipped) folder → name it `clinicos-api.zip`
 
-3. Click **"New Folder"** in the top toolbar
-   - Folder name: `clinicos-api`
-   - Click **"Create New Folder"**
+**In cPanel File Manager:**
+1. Go to your **home directory** (the folder that contains `public_html`)
+2. Create folder: `clinicos-api`
+3. Open `clinicos-api` → Upload → upload `clinicos-api.zip`
+4. Right-click zip → **Extract** → then delete the zip
 
-4. Double-click to open the `clinicos-api` folder
-
-5. Click **"Upload"** in the top toolbar — a new browser tab opens
-
-6. On your Windows computer, open File Explorer and go to:
-   `C:\Users\DELL\Documents\ClinicOS\apps\api\`
-
-7. Drag and drop these into the upload area (one by one or together):
-   - The `dist` **folder** ← most important
-   - The `prisma` **folder**
-   - The `package.json` **file**
-   - The `.env` **file** ← contains your API keys
-   - The `ecosystem.config.js` **file**
-
-   ⛔ Do NOT upload the `node_modules` or `src` folders
-
-8. Wait for all uploads to show 100% → close this tab
-
-9. Go back to File Manager and verify `clinicos-api` contains:
-   ```
-   clinicos-api/
-   ├── dist/
-   ├── prisma/
-   ├── .env
-   ├── package.json
-   └── ecosystem.config.js
-   ```
-
-✅ Backend files uploaded.
+✅ Backend uploaded.
 
 ---
 
-## STEP 4 — UPLOAD FRONTEND TO CPANEL FILE MANAGER
+## STEP 5 — UPLOAD FRONTEND
 
-1. In File Manager, navigate to **`public_html`**
-   (click `public_html` in the left panel)
+**3 separate uploads to `public_html`:**
 
-2. **Upload the app files:**
-   - On your computer, open: `C:\Users\DELL\Documents\ClinicOS\apps\web\.next\standalone\`
-   - Select ALL files and folders inside this folder
-   - Upload them to `public_html/`
+**Upload 1 — App files:**
+- Zip everything INSIDE `apps/web/.next/standalone/`
+- Upload to `public_html/` → extract → delete zip
 
-3. **Upload the static files (CSS, JavaScript, images):**
-   - In File Manager inside `public_html`, look for a `.next` folder
-   - If it doesn't exist, click **"New Folder"** → name it `.next`
-   - Open the `.next` folder → click **"New Folder"** → name it `static`
-   - Open the `static` folder
-   - On your computer, open: `C:\Users\DELL\Documents\ClinicOS\apps\web\.next\static\`
-   - Select ALL → upload to `public_html/.next/static/`
+**Upload 2 — Static files:**
+- Zip everything INSIDE `apps/web/.next/static/`
+- In `public_html`, open or create `.next/static/` folder
+- Upload zip there → extract → delete zip
 
-4. **Upload the public files:**
-   - On your computer, open: `C:\Users\DELL\Documents\ClinicOS\apps\web\public\`
-   - Select ALL files → upload to `public_html/`
-   - This includes `.htaccess`, `favicon.svg`, `robots.txt`
+**Upload 3 — Public files:**
+- Zip everything INSIDE `apps/web/public/`
+- Upload to `public_html/` → extract → delete zip
 
-5. **Upload the frontend config:**
-   - On your computer, go to: `C:\Users\DELL\Documents\ClinicOS\apps\web\`
-   - Find the file `.env.local` → upload it to `public_html/`
+**Upload 4 — One single file:**
+- Upload `apps/web/.env.local` directly to `public_html/`
 
-After uploading, `public_html` must contain:
+After uploads, `public_html` must contain:
 ```
 public_html/
-├── .htaccess         ← CRITICAL — routes /api calls to backend
-├── .env.local        ← frontend config
+├── .htaccess       ← routes /api to backend (critical)
+├── .env.local
+├── server.js
 ├── favicon.svg
 ├── robots.txt
-├── server.js         ← Next.js server
-├── .next/
-│   └── static/       ← CSS and JavaScript
-└── node_modules/     ← frontend packages
+├── .next/static/
+└── node_modules/
 ```
 
-✅ Frontend files uploaded.
+✅ Frontend uploaded.
 
 ---
 
-## STEP 5 — SET UP NODE.JS APP AND START SERVER
+## STEP 6 — SET UP NODE.JS APP AND START SERVER
 
 ### Part A — Create the app
 
-1. In cPanel → scroll down to **"Software"** section → click **"Setup Node.js App"**
-
-2. Click the green **"Create Application"** button (top right corner)
-
-3. Fill in exactly:
-   - **Node.js version:** `20` (select from dropdown — if 20 not available, choose 18)
-   - **Application mode:** `Production`
-   - **Application root:** `clinicos-api`
-   - **Application URL:** select `clinicos.workee.online` from dropdown
-   - **Application startup file:** `dist/app.js`
-
-4. Click **"Create"**
+1. cPanel → **"Setup Node.js App"** → click **"Create Application"**
+2. Fill in:
+   - Node.js version: **20**
+   - Application mode: **Production**
+   - Application root: **clinicos-api**
+   - Application URL: **clinicos.aderalabs.com**
+   - Startup file: **dist/app.js**
+3. Click **Create**
 
 ### Part B — Install and set up database
 
-5. Your app appears in the list. Click the **pencil icon** (✏️) on the right side of the row
+4. Click the **pencil icon** ✏️ next to your app → click **Open Terminal**
+5. A black box opens in your browser — click inside it, then run:
 
-6. On the next page, click **"Open Terminal"** — a black box opens inside your browser
+```
+npm install
+```
+*(Wait 2-3 minutes)*
 
-7. Click inside the black box so your cursor appears there
-
-8. Type this and press Enter — wait for it to finish:
-   ```
-   npm install
-   ```
-   *(Takes 2-3 minutes — many lines scroll by, that is normal)*
-
-9. Type this and press Enter — wait:
-   ```
-   npx prisma migrate deploy
-   ```
-   *(You should see "Applied X migrations" — this creates all database tables)*
+```
+npx prisma db push
+```
+*(Creates all database tables — you should see "Your database is now in sync")*
 
 ### Part C — Set your super admin password ⚠️ DO NOT SKIP
 
-10. Still in the same black terminal box, type this command.
-    Choose your own admin password — this example uses `Clinicos@2026` but pick anything you want:
-    ```
-    node -e "require('bcrypt').hash('Clinicos@2026', 12).then(h => console.log(h))"
-    ```
-    Press Enter. After 3-4 seconds it prints something like:
-    ```
-    $2b$12$AbCdEfGhIjKlMnOpQrStUvWxYzAbCdEfGhIjKlMnOpQrStUvWxYz
-    ```
+6. Still in the terminal, run this (choose your own password — example uses `Admin@Clinicos2026`):
+```
+node -e "require('bcrypt').hash('Admin@Clinicos2026', 12).then(h => console.log(h))"
+```
+It prints something like: `$2b$12$AbCdEfGhIjKlMnOpQrStUv...`
 
-11. **Copy that entire line** — select it with your mouse and copy it
+7. **Copy that entire `$2b$12$...` line**
 
-12. Go to cPanel → File Manager → open `clinicos-api` folder
-    → click `.env` file → click **"Edit"** in the toolbar
+8. Go to cPanel File Manager → open `clinicos-api` folder → click `.env` → click **Edit**
 
-13. Find this line:
-    ```
-    SUPERADMIN_PASSWORD_HASH=REPLACE_WITH_BCRYPT_HASH
-    ```
-    Delete `REPLACE_WITH_BCRYPT_HASH` and paste the `$2b$12$...` text you copied
+9. Find: `SUPERADMIN_PASSWORD_HASH=REPLACE_WITH_BCRYPT_HASH`
 
-14. Click **"Save Changes"** → close the editor
+10. Replace `REPLACE_WITH_BCRYPT_HASH` with the hash you copied
 
-### Part D — Start the server
+11. Click **Save Changes**
 
-15. Go back to the black terminal box and type:
-    ```
-    npm install -g pm2
-    ```
-    Press Enter — wait for it to finish.
+### Part D — Start with PM2
 
-16. Type:
-    ```
-    pm2 start ecosystem.config.js --env production
-    ```
-    Press Enter.
+12. Back in the terminal:
+```
+npm install -g pm2
+pm2 start ecosystem.config.js --env production
+pm2 save
+```
 
-17. Type:
-    ```
-    pm2 save
-    ```
-    Press Enter.
+13. In the Node.js App panel → click **Restart**
 
-18. Go back to the Setup Node.js App page → click **"Restart"** button
-
-✅ Server is running.
+✅ Server running.
 
 ---
 
-## STEP 6 — ENABLE FREE HTTPS (SSL)
+## STEP 7 — ENABLE SSL (FREE HTTPS)
 
-1. In cPanel → find **"Security"** section → click **"SSL/TLS"** or **"Let's Encrypt SSL"**
+1. cPanel → **SSL/TLS** or **Let's Encrypt SSL**
+2. Find `clinicos.aderalabs.com` → click **Issue** or **Run AutoSSL**
+3. Wait 2-3 minutes
 
-2. Find `clinicos.workee.online` in the list
+Test: open browser → go to `https://clinicos.aderalabs.com/health`
+You should see: `{"status":"ok","app":"ClinicOS AI"}`
 
-3. Click **"Issue"** or **"Run AutoSSL"**
-
-4. Wait 2-3 minutes
-
-5. Test it — open your browser and visit:
-   ```
-   https://clinicos.workee.online/health
-   ```
-   You must see: `{"status":"ok","app":"ClinicOS AI"}`
-
-   If you see this, your server is live ✅
+✅ SSL active.
 
 ---
 
-## STEP 7 — TEST EVERYTHING
+## STEP 8 — TEST EVERYTHING
 
-Go through this list one by one in your browser:
-
-- [ ] `https://clinicos.workee.online` → landing page loads with teal header
-- [ ] `https://clinicos.workee.online/health` → shows `{"status":"ok"}`
-- [ ] `https://clinicos.workee.online/login` → login form appears
-- [ ] `https://clinicos.workee.online/register` → registration form appears
-- [ ] `https://clinicos.workee.online/book/dr-ahmed-rahman` → booking page loads
-- [ ] `https://clinicos.workee.online/superadmin/login`:
-  - Email: `support@clinicos.workee.online`
-  - Password: whatever you chose in Step 5 Part C (e.g. `Clinicos@2026`)
+- [ ] `https://clinicos.aderalabs.com` — landing page loads
+- [ ] `https://clinicos.aderalabs.com/health` — shows `{"status":"ok"}`
+- [ ] `https://clinicos.aderalabs.com/login` — login form works
+- [ ] `https://clinicos.aderalabs.com/book/dr-ahmed-rahman` — booking page loads
+- [ ] `https://clinicos.aderalabs.com/superadmin/login`:
+  - Email: `support@clinicos.aderalabs.com`
+  - Password: whatever you set in Step 6C
 
 ---
 
-## YOUR IMPORTANT LOGINS (save this)
+## YOUR LOGINS (SAVE THIS)
 
 | What | URL | Email | Password |
 |------|-----|-------|----------|
-| **Your admin panel** | /superadmin/login | support@clinicos.workee.online | what you set in Step 5C |
+| **Your admin panel** | /superadmin/login | support@clinicos.aderalabs.com | what you set in Step 6C |
 | **Test doctor** | /login | rahman@test.clinicos.ai | TestPass123! |
 | **Test staff** | /login | staff@test.clinicos.ai | TestPass123! |
 | **Test booking** | /book/dr-ahmed-rahman | — | — |
 
 ---
 
-## IF SOMETHING DOESN'T WORK
+## TROUBLESHOOTING
 
-**Server not starting / blank page:**
+**Blank page / server not starting:**
 - cPanel → Setup Node.js App → pencil icon → Open Terminal
 - Type: `pm2 logs clinicos-api --lines 50`
-- Look at the red error text — it tells you exactly what's wrong
+- Read the red error — it tells you what's wrong
 
-**"Cannot connect to database" error:**
-- You may have typed the wrong password when creating `clinicos_user`
-- The password must be exactly: `4mQ6S77xZ3TiGs`
-- Fix: cPanel → MySQL Databases → MySQL Users → Change Password for `clinicos_user`
+**Cannot connect to database:**
+- Check that password in `DATABASE_URL` matches what you set for `clinicos_user`
+- Re-run `npx prisma db push`
 
-**Admin panel login says "wrong password":**
-- You skipped Step 5 Part C
-- Go back and do it now — it only takes 2 minutes
+**Admin login says wrong password:**
+- You skipped Step 6C — go back and do it now
 
-**Website loads but API calls fail (dashboard shows no data):**
-- Check that `.htaccess` was uploaded to `public_html` correctly
-- Test: visit `https://clinicos.workee.online/api/health`
+**API not working (dashboard empty):**
+- Check `.htaccess` was uploaded to `public_html`
+- Test: `https://clinicos.aderalabs.com/api/health`
+
+**Email not sending:**
+- Check `SMTP_PASS` in `.env` matches your cPanel email password
+- Make sure `support@clinicos.aderalabs.com` exists in cPanel Email Accounts
 
 ---
 
-## ADD THESE AFTER LAUNCH (not needed now)
+## WHAT TO ADD AFTER LAUNCH
 
-| What | Where to sign up | Time needed |
-|------|-----------------|-------------|
-| WhatsApp & SMS sending | https://twilio.com | 30 min |
-| Doctor subscription payments | https://stripe.com | 1 hour |
-| AI voice calls | https://elevenlabs.io | 20 min |
+| Feature | Sign up at | Time |
+|---------|-----------|------|
+| WhatsApp + SMS | https://twilio.com (free trial) | 30 min |
+| Doctor subscription billing | https://stripe.com (test mode free) | 1 hour |
+| AI voice calls | https://elevenlabs.io (free tier) | 20 min |
 
-When ready: add the keys to `clinicos-api/.env` in File Manager → save → type `pm2 restart clinicos-api` in terminal.
+When ready: add keys to `.env` in File Manager → save → in terminal type `pm2 restart clinicos-api`
