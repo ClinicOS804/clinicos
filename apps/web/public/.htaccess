@@ -1,0 +1,19 @@
+Options -MultiViews
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Proxy /api/* → Node.js backend on port 3001
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ http://127.0.0.1:3001/api/$1 [P,L]
+
+# Proxy Socket.io
+RewriteCond %{REQUEST_URI} ^/socket.io/
+RewriteRule ^socket.io/(.*)$ http://127.0.0.1:3001/socket.io/$1 [P,L]
+
+# Next.js standalone — serve static files, fallback to index
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]

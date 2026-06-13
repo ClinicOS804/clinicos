@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body { @apply bg-app text-primary font-sans antialiased; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  :focus-visible { @apply outline-none ring-2 ring-brand ring-offset-2; }
+}
+
+@layer components {
+  .card         { @apply bg-card rounded-card shadow-card border border-border; }
+  .card-header  { @apply px-[18px] py-4 border-b border-[#f1f5f9]; }
+  .card-body    { @apply p-[18px]; }
+
+  .btn          { @apply inline-flex items-center justify-center gap-2 rounded-btn px-[18px] py-[10px] text-sm font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]; }
+  .btn-primary  { @apply btn bg-brand text-white hover:bg-brand-dark; }
+  .btn-secondary{ @apply btn bg-subtle text-muted hover:bg-border; }
+  .btn-danger   { @apply btn bg-danger-light text-danger hover:bg-red-100; }
+  .btn-ghost    { @apply btn bg-transparent text-muted hover:bg-subtle; }
+
+  .input        { @apply w-full border-2 border-border rounded-input px-3 py-[10px] text-sm font-semibold text-primary placeholder:text-faint focus:border-brand focus:outline-none transition-colors duration-150; }
+
+  .chip         { @apply inline-flex items-center px-2.5 py-1 rounded-chip text-xs font-bold; }
+
+  .nav-item     { @apply flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-150 cursor-pointer; }
+  .nav-item-active { @apply bg-brand/20 text-white border-l-2 border-brand; }
+
+  .skeleton     { @apply bg-border rounded animate-pulse; }
+}
+
+.text-stat       { font-size: 32px; font-weight: 800; line-height: 1; }
+.text-page-title { font-size: 24px; font-weight: 800; }
+.text-section    { font-size: 20px; font-weight: 800; }
+.text-card-title { font-size: 15px; font-weight: 800; }
