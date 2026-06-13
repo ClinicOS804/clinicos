@@ -7,3 +7,6 @@ logs/
 *.log
 .DS_Store
 apps/api/prisma/migrations/
+
+# Exclude web package-lock to avoid Railway CVE scanner blocking the API service
+apps/web/package-lock.json
